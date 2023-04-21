@@ -5,6 +5,11 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
 F12::
 CoordMode, Mouse, Screen
+IfWinNotExist, League of Legends
+{
+    MsgBox, "League of Legends" window not found.
+    return
+}
 BlockInput, On
 WinGet, hwnd, ID, League of Legends
 WinGetPos, , , , win_height, ahk_id %hwnd%
