@@ -4,14 +4,23 @@ SendMode Input  ; Recommended for new scripts due to its superior speed and reli
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
 F12::
+CoordMode, Mouse, Screen
+BlockInput, On
+WinGet, hwnd, ID, League of Legends
+WinGetPos, , , , win_height, ahk_id %hwnd%
 MouseGetPos, xpos, ypos
+WinGetTitle, title, ahk_id %hwnd%
+; MsgBox, The position of window "%title%" is (%xpos%, %ypos%), and its height is %win_height%.
+
 Click, %xpos%, %ypos%
 Loop, 6
 {
     if (A_Index = 3)
-        ypos += 27
+        ypos += Floor(27 * (win_height / 720) )
     else
-        ypos += 45
+        ypos += Floor(45 * (win_height / 720) )
     Click, %xpos%, %ypos%
+    ; Sleep, 500
 }
+BlockInput, Off
 return
