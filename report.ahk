@@ -105,12 +105,12 @@ report_x1(selected_options, meta_selected_options)
     }
     WinGet, hwnd, ID, League of Legends
     WinGetPos, win_x, win_y, win_width, win_height, ahk_id %hwnd%
-    first_checkbox_x := win_x + 440
-    first_checkbox_y := win_y + 223
-    report_submit_button_x := win_x + 640
-    report_submit_button_y := win_y + 630
-    report_cancel_x := win_x + 870
-    report_cancel_y := win_y + 75
+    first_checkbox_x := win_x + floor( 440 * win_width / 1280 )
+    first_checkbox_y := win_y + floor( 223 * win_height / 720 )
+    report_submit_button_x := win_x + floor( 640 * win_width / 1280 )
+    report_submit_button_y := win_y + floor( 630 * win_height / 720 )
+    report_cancel_x := win_x + floor( 870 * win_width / 1280 )
+    report_cancel_y := win_y + floor( 75 * win_height / 720 )
     checkbox_ycoords := [565, 609, 669, 714, 758, 804, 847, 897] ; collected from my screen at window height of 720px
     click_xpos := first_checkbox_x
     click_ypos := first_checkbox_y
@@ -122,8 +122,9 @@ report_x1(selected_options, meta_selected_options)
         else
         {
             diff := checkbox_ycoords[A_Index] - checkbox_ycoords[A_Index - 1]
+            diff := Floor(diff * (win_height / 720) )
         }
-        click_ypos += Floor(diff * (win_height / 720) )
+        click_ypos += diff
         if ( selected_options[A_Index] = 1 )
         {
             Click, %click_xpos%, %click_ypos%
@@ -171,8 +172,8 @@ report_x10(selected_options, meta_selected_options)
     }
     WinGet, hwnd, ID, League of Legends
     WinGetPos, win_x, win_y, win_width, win_height, ahk_id %hwnd%
-    first_report_button_x := win_x + 280
-    first_report_button_y := win_y + 175
+    first_report_button_x := win_x + floor( 280 * win_width / 1280 )
+    first_report_button_y := win_y + floor( 175 * win_height / 720 )
     report_button_ycoords := [510, 552, 593, 637, 675, 755, 795, 835, 875, 915]
     click_xpos := first_report_button_x
     click_ypos := first_report_button_y
@@ -184,8 +185,9 @@ report_x10(selected_options, meta_selected_options)
         else
         {
             diff := report_button_ycoords[A_Index] - report_button_ycoords[A_Index - 1]
+            diff := Floor(diff * (win_height / 720) )
         }
-        click_ypos += Floor(diff * (win_height / 720) )
+        click_ypos += diff
         ; MouseMove, %click_xpos%, %click_ypos%
         Click, %click_xpos%, %click_ypos%
         Sleep, 250 ; Allow time for the popup to render before clicks occur
@@ -256,7 +258,7 @@ FuncHotkeyAction:
     ; Get cursor coords only mode
     if (meta_selected_options[1] = 1)
     {
-        ToolTip, x: %xpos%`, y: %ypos%`, winx: %win_x%`, winy: %win_y%`, winheight: %win_height%
+        ToolTip, x: %xpos%`, y: %ypos% `| winx: %win_x%`, winy: %win_y%` `| winw: %win_width%`, winh: %win_height%
         return
     }
     ; x10 mode

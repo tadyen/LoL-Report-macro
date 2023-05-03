@@ -15,4 +15,5 @@ Options are kinda self explanatory 😉
 ## Known issues
 
 - Can't rebind to Mouse Buttons eg MB4/MB5
+- Msg doesn't accept exclamation marks (and probably any punctuation for the matter)
 - (Should be fixed): Occasionally misses a few checkboxes
