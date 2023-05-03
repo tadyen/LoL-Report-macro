@@ -28,3 +28,11 @@ Use x10 mode to let the script autoclick every single ❗ and autosubmit them.
 
 - Can't rebind to Mouse Buttons eg MB4/MB5
 - Msg doesn't accept exclamation marks (and probably any punctuation for the matter)
+- Very dogshit code. To call it any variety of pasta is a compliment
+
+## Potential upgrades
+
+I guess I could improve it with the following features in future:
+
+- Pre-game lobby reporting option
+- Checkboxes to select which players to report (to avoid hitting your duo)
