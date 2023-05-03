@@ -10,7 +10,7 @@ Hotkey, % MyHotkey, FuncHotkeyAction
 
 bgcolour := "202020"
 win_width := 640
-win_height := 480
+win_height := 520
 
 Gui, Show, w%win_width% h%win_height%
 Gui, Color, c%bgcolour%
@@ -41,7 +41,7 @@ GuiControl, Hide, HotkeyApplyButton
 GuiControl, Hide, HotkeyCancelButton
 
 selected_options := [1,1,1,1,1,1,1,0]
-option_names := [ "NEGATIVE ATTITUDE", "VERBAL ABUSE", "LEAVING THE GAME / AFK", "INTENTIONAL FEEDING", "HATE SPEECH", "CHEATING", "OFFENSIVE OR INAPPROPRIATE NAME", "typed response: Give additional context on what happened in this game..."]
+option_names := [ "NEGATIVE ATTITUDE", "VERBAL ABUSE", "LEAVING THE GAME / AFK", "INTENTIONAL FEEDING", "HATE SPEECH", "CHEATING", "OFFENSIVE OR INAPPROPRIATE NAME", "typed response: Give additional context..."]
 iter := 1
 Loop % option_names.Length()
 {   
@@ -59,6 +59,13 @@ Loop % option_names.Length()
     iter += 1
 }
 
+my_text := "Additional typed report:"
+Gui, Add, Text, xp yp+30, %my_text%
+w := win_width - 60
+Gui, Font, c000000,
+Gui, Add, Edit, xp yp+30 w%w% r1 vEditBox 
+
+Gui, Font, cFFFFFF,
 
 my_text := "Close Script"
 x := win_width -120
@@ -140,6 +147,12 @@ FuncHotkeyAction:
         if ( selected_options[A_Index] = 1 )
         {
             Click, %click_xpos%, %click_ypos%
+        }
+        if ( A_Index = 8 )
+        {
+            GuiControlGet, EditBox
+            typed_msg := EditBox
+            Send % typed_msg
         }
     }
     return
