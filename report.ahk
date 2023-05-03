@@ -10,7 +10,7 @@ Hotkey, % MyHotkey, FuncHotkeyAction
 
 bgcolour := "202020"
 win_width := 640
-win_height := 520
+win_height := 480
 
 Gui, Show, w%win_width% h%win_height%
 Gui, Color, c%bgcolour%
@@ -40,27 +40,46 @@ Gui, Add, Button, xp+80 yp h30 vHotkeyCancelButton gFuncHotkeyCancelButton, %but
 GuiControl, Hide, HotkeyApplyButton
 GuiControl, Hide, HotkeyCancelButton
 
-selected_options := [1,1,1,1,1,1,1,0]
+selected_options := [1,1,1,1,1,1,1,1]
 option_names := [ "NEGATIVE ATTITUDE", "VERBAL ABUSE", "LEAVING THE GAME / AFK", "INTENTIONAL FEEDING", "HATE SPEECH", "CHEATING", "OFFENSIVE OR INAPPROPRIATE NAME", "typed response: Give additional context..."]
+my_text := "Report Options:"
+Gui, Add, Text, xm yp+40 vTextReportOptions, %my_text%
 iter := 1
-Loop % option_names.Length()
+Loop % selected_options.Length()
 {   
     checkbox_vlabel := "checkbox_" iter
     checkbox_label := option_names[A_Index]
     checked_val := selected_options[A_Index]
-    if (A_Index = 1)
-    {
-        Gui, Add, CheckBox, Checked%checked_val% xm yp+40 v%checkbox_vlabel% gFuncCheckbox, %checkbox_label%
-    }
-    else
-    {
-        Gui, Add, CheckBox, Checked%checked_val% xm yp+25 v%checkbox_vlabel% gFuncCheckbox, %checkbox_label%
-    }
+    Gui, Add, CheckBox, Checked%checked_val% xm yp+25 v%checkbox_vlabel% gFuncCheckbox, %checkbox_label%
     iter += 1
 }
 
+meta_selected_options := [0, 0, 0, 0]
+meta_option_names := ["Get Cursor Coords only", "Auto Submit", "x10 (including yourself :) This will auto-submit)", "Mock submit (click X instead)"]
+GuiControlGet, TextReportOptions, Pos
+x := TextReportOptionsX + floor(win_width / 2)
+y := TextReportOptionsY
+my_text := "Meta Options:"
+Gui, Add, Text, x%x% y%y%, %my_text%
+iter := 1
+Loop % meta_selected_options.Length()
+{   
+    x := x
+    y := y + 25
+    checkbox_vlabel := "meta_checkbox_" iter
+    checkbox_label := meta_option_names[A_Index]
+    checked_val := meta_selected_options[A_Index]
+    Gui, Add, CheckBox, Checked%checked_val% x%x% y%y% v%checkbox_vlabel% gFuncCheckbox, %checkbox_label%
+    iter += 1
+}
+
+
+GuiControlGet, checkbox_8, Pos
+x := checkbox_8X
+y := checkbox_8Y + 30
+
 my_text := "Additional typed report:"
-Gui, Add, Text, xp yp+30, %my_text%
+Gui, Add, Text, x%x% y%y%, %my_text%
 w := win_width - 60
 Gui, Font, c000000,
 Gui, Add, Edit, xp yp+30 w%w% r1 vEditBox 
@@ -68,10 +87,115 @@ Gui, Add, Edit, xp yp+30 w%w% r1 vEditBox
 Gui, Font, cFFFFFF,
 
 my_text := "Close Script"
-x := win_width -120
-y := win_height -60
+x := win_width -105
+y := win_height -45
 Gui, Add, Button, x%x% y%y%, %my_text%
 return
+
+; ==============================================================================================
+; === Functions
+; ==============================================================================================
+report_x1(selected_options, meta_selected_options)
+{
+    CoordMode, Mouse, Screen
+    IfWinNotExist, League of Legends
+    {
+        MsgBox, LoL not running
+        return
+    }
+    WinGet, hwnd, ID, League of Legends
+    WinGetPos, win_x, win_y, win_width, win_height, ahk_id %hwnd%
+    first_checkbox_x := win_x + 440
+    first_checkbox_y := win_y + 223
+    report_submit_button_x := win_x + 640
+    report_submit_button_y := win_y + 630
+    report_cancel_x := win_x + 870
+    report_cancel_y := win_y + 75
+    checkbox_ycoords := [565, 609, 669, 714, 758, 804, 847, 897] ; collected from my screen at window height of 720px
+    click_xpos := first_checkbox_x
+    click_ypos := first_checkbox_y
+    Loop % checkbox_ycoords.Length()
+    {
+        if (A_Index = 1) {
+            diff := 0 
+        }
+        else
+        {
+            diff := checkbox_ycoords[A_Index] - checkbox_ycoords[A_Index - 1]
+        }
+        click_ypos += Floor(diff * (win_height / 720) )
+        if ( selected_options[A_Index] = 1 )
+        {
+            Click, %click_xpos%, %click_ypos%
+        }
+        if ( A_Index = 8 )
+        {
+            GuiControlGet, EditBox
+            typed_msg := EditBox
+            Send % typed_msg
+        }
+    }
+    ; auto submit / x10 optoin
+    if ( meta_selected_options[2] = 1 || meta_selected_options[3] = 1)
+    {
+        Sleep, 250 ; allow time for clicks
+        if( selected_options[8] = 1 && typed_msg != "" )
+        {
+            Sleep, 750 ; allow more time for typed msg
+        }
+        ; mock click option
+        if ( meta_selected_options[4] = 1 )
+        {
+            MouseMove, report_submit_button_x, report_submit_button_y
+            Click, %report_cancel_x%, %report_cancel_y%
+        }
+        else
+        {
+            Click, %report_submit_button_x%, %report_submit_button_y%
+        }
+    }
+    return
+}
+
+report_x10(selected_options, meta_selected_options)
+{
+    if ( meta_selected_options[3] != 1 )
+    {
+        return
+    }
+    CoordMode, Mouse, Screen
+    IfWinNotExist, League of Legends
+    {
+        MsgBox, LoL not running
+        return
+    }
+    WinGet, hwnd, ID, League of Legends
+    WinGetPos, win_x, win_y, win_width, win_height, ahk_id %hwnd%
+    first_report_button_x := win_x + 280
+    first_report_button_y := win_y + 175
+    report_button_ycoords := [510, 552, 593, 637, 675, 755, 795, 835, 875, 915]
+    click_xpos := first_report_button_x
+    click_ypos := first_report_button_y
+    Loop % 10
+    {
+        if (A_Index = 1) {
+            diff := 0 
+        }
+        else
+        {
+            diff := report_button_ycoords[A_Index] - report_button_ycoords[A_Index - 1]
+        }
+        click_ypos += Floor(diff * (win_height / 720) )
+        ; MouseMove, %click_xpos%, %click_ypos%
+        Click, %click_xpos%, %click_ypos%
+        Sleep, 250 ; Allow time for the popup to render before clicks occur
+        report_x1(selected_options, meta_selected_options)
+    }
+    return
+}
+; ==============================================================================================
+; === Subroutines / Callbacks
+; ==============================================================================================
 
 ButtonCloseScript:
 GuiClose:
@@ -126,34 +250,23 @@ FuncHotkeyAction:
     WinGetTitle, title, A ; Window over cursor
     if( title != "League of Legends" )
     {
+        MsgBox, LoL not in focus!
         return
     }
-    ; ToolTip, x: %xpos%`, y: %ypos%`, winx: %win_x%`, winy: %win_y%`, winheight: %win_height%
-    first_checkbox_x := win_x + 440
-    first_checkbox_y := win_y + 223
-    checkbox_ycoords := [565, 609, 669, 714, 758, 804, 847, 897] ; collected from my screen at window height of 720px
-    click_xpos := first_checkbox_x
-    click_ypos := first_checkbox_y
-    Loop % checkbox_ycoords.Length()
+    ; Get cursor coords only mode
+    if (meta_selected_options[1] = 1)
     {
-        if (A_Index = 1) {
-            diff := 0 
-        }
-        else
-        {
-            diff := checkbox_ycoords[A_Index] - checkbox_ycoords[A_Index - 1]
-        }
-        click_ypos += Floor(diff * (win_height / 720) )
-        if ( selected_options[A_Index] = 1 )
-        {
-            Click, %click_xpos%, %click_ypos%
-        }
-        if ( A_Index = 8 )
-        {
-            GuiControlGet, EditBox
-            typed_msg := EditBox
-            Send % typed_msg
-        }
+        ToolTip, x: %xpos%`, y: %ypos%`, winx: %win_x%`, winy: %win_y%`, winheight: %win_height%
+        return
+    }
+    ; x10 mode
+    if ( meta_selected_options[3] = 1 )
+    {
+        report_x10(selected_options, meta_selected_options)
+    }
+    else
+    {
+        report_x1(selected_options, meta_selected_options)
     }
     return
 
@@ -167,4 +280,8 @@ FuncCheckbox:
     selected_options[6] := checkbox_6
     selected_options[7] := checkbox_7
     selected_options[8] := checkbox_8
+    meta_selected_options[1] := meta_checkbox_1
+    meta_selected_options[2] := meta_checkbox_2
+    meta_selected_options[3] := meta_checkbox_3
+    meta_selected_options[4] := meta_checkbox_4
     return
