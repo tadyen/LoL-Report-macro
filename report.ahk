@@ -40,6 +40,26 @@ Gui, Add, Button, xp+80 yp h30 vHotkeyCancelButton gFuncHotkeyCancelButton, %but
 GuiControl, Hide, HotkeyApplyButton
 GuiControl, Hide, HotkeyCancelButton
 
+selected_options := [1,1,1,1,1,1,1,0]
+option_names := [ "NEGATIVE ATTITUDE", "VERBAL ABUSE", "LEAVING THE GAME / AFK", "INTENTIONAL FEEDING", "HATE SPEECH", "CHEATING", "OFFENSIVE OR INAPPROPRIATE NAME", "typed response: Give additional context on what happened in this game..."]
+iter := 1
+Loop % option_names.Length()
+{   
+    checkbox_vlabel := "checkbox_" iter
+    checkbox_label := option_names[A_Index]
+    checked_val := selected_options[A_Index]
+    if (A_Index = 1)
+    {
+        Gui, Add, CheckBox, Checked%checked_val% xm yp+40 v%checkbox_vlabel% gFuncCheckbox, %checkbox_label%
+    }
+    else
+    {
+        Gui, Add, CheckBox, Checked%checked_val% xm yp+25 v%checkbox_vlabel% gFuncCheckbox, %checkbox_label%
+    }
+    iter += 1
+}
+
+
 my_text := "Close Script"
 x := win_width -120
 y := win_height -60
@@ -101,18 +121,37 @@ FuncHotkeyAction:
     {
         return
     }
-    ; ToolTip, x: %xpos%`, y: %ypos%`, winheight: %win_height%
-    checkbox_ycoords := [565, 609, 669, 714, 758, 804, 847] ; collected from my screen at window height of 720px
-    click_xpos := xpos
-    click_ypos := ypos
-    Click, %click_xpos%, %click_ypos%
+    ; ToolTip, x: %xpos%`, y: %ypos%`, winx: %win_x%`, winy: %win_y%`, winheight: %win_height%
+    first_checkbox_x := win_x + 440
+    first_checkbox_y := win_y + 223
+    checkbox_ycoords := [565, 609, 669, 714, 758, 804, 847, 897] ; collected from my screen at window height of 720px
+    click_xpos := first_checkbox_x
+    click_ypos := first_checkbox_y
     Loop % checkbox_ycoords.Length()
     {
         if (A_Index = 1) {
-            continue 
+            diff := 0 
         }
-        diff := checkbox_ycoords[A_Index] - checkbox_ycoords[A_Index - 1]
+        else
+        {
+            diff := checkbox_ycoords[A_Index] - checkbox_ycoords[A_Index - 1]
+        }
         click_ypos += Floor(diff * (win_height / 720) )
-        Click, %click_xpos%, %click_ypos%
+        if ( selected_options[A_Index] = 1 )
+        {
+            Click, %click_xpos%, %click_ypos%
+        }
     }
+    return
+
+FuncCheckbox:
+    Gui, Submit, NoHide
+    selected_options[1] := checkbox_1
+    selected_options[2] := checkbox_2
+    selected_options[3] := checkbox_3
+    selected_options[4] := checkbox_4
+    selected_options[5] := checkbox_5
+    selected_options[6] := checkbox_6
+    selected_options[7] := checkbox_7
+    selected_options[8] := checkbox_8
     return
