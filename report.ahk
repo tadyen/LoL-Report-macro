@@ -12,20 +12,20 @@ IfWinNotExist, League of Legends
 }
 BlockInput, On
 WinGet, hwnd, ID, League of Legends
-WinGetPos, , , , win_height, ahk_id %hwnd%
-MouseGetPos, xpos, ypos
+WinGetPos, win_x, win_y, win_width, win_height, ahk_id %hwnd%
+MouseGetPos, xpos, ypos ; Stop mousemove
 WinGetTitle, title, ahk_id %hwnd%
-; MsgBox, The position of window "%title%" is (%xpos%, %ypos%), and its height is %win_height%.
-
+; ToolTip, x: %xpos%`, y: %ypos%`, winheight: %win_height%
+checkbox_ycoords := [565, 609, 669, 714, 757, 804, 847] ; collected from my screen at window height of 720px
 Click, %xpos%, %ypos%
-Loop, 6
+Loop % checkbox_ycoords.Length()
 {
-    if (A_Index = 3)
-        ypos += Floor(27 * (win_height / 720) )
-    else
-        ypos += Floor(45 * (win_height / 720) )
+    if (A_Index = 1) {
+        continue 
+    }
+    diff := checkbox_ycoords[A_Index] - checkbox_ycoords[A_Index - 1]
+    ypos += Floor(diff * (win_height / 720) )
     Click, %xpos%, %ypos%
-    ; Sleep, 500
 }
-BlockInput, Off
+BlockInput, Off ; Resume mousemove
 return
