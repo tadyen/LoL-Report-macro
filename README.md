@@ -4,6 +4,10 @@ AHK Macro to speed up the reporting process in LoL.
 
 If you have an issue with this, you're probably part of the reason why this script was even made to begin with.
 
+## Requirements
+
+[AutoHotkey v1.1](https://www.autohotkey.com/)
+
 ## Usage
 
 Download and run the ahk script.
