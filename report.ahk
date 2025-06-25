@@ -111,11 +111,11 @@ report_x1(selected_options, meta_selected_options)
     WinGetPos, win_x, win_y, win_width, win_height, ahk_id %hwnd%
     ; rel coords for 1280x720 interface
     first_checkbox_x := win_x + floor( 440 * win_width / 1280 )
-    first_checkbox_y := win_y + floor( 223 * win_height / 720 )
+    first_checkbox_y := win_y + floor( 203 * win_height / 720 )
     report_submit_button_x := win_x + floor( 640 * win_width / 1280 )
-    report_submit_button_y := win_y + floor( 630 * win_height / 720 )
+    report_submit_button_y := win_y + floor( 650 * win_height / 720 )
     report_cancel_x := win_x + floor( 870 * win_width / 1280 )
-    report_cancel_y := win_y + floor( 75 * win_height / 720 )
+    report_cancel_y := win_y + floor( 65 * win_height / 720 )
     checkbox_ycoords := [408, 452, 512, 559, 602, 648, 691, 736, 788] ; abs-y coords at each report checkbox + textbox at 720px interface
     click_xpos := first_checkbox_x
     click_ypos := first_checkbox_y
