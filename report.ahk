@@ -12,6 +12,8 @@ MyHotkey_plain := "F12"
 MyHotkey := "~" MyHotkey_plain
 Hotkey, % MyHotkey, FuncHotkeyAction
 
+DefaultReportMsg := "You have been reported using github.com/tadyen/LoL-Report-macro :)"
+
 bgcolour := "202020"
 win_width := 640
 win_height := 480
@@ -44,7 +46,7 @@ Gui, Add, Button, xp+80 yp h30 vHotkeyCancelButton gFuncHotkeyCancelButton, %but
 GuiControl, Hide, HotkeyApplyButton
 GuiControl, Hide, HotkeyCancelButton
 
-selected_options := [1,1,1,1,1,1,1,1,1]
+selected_options := [1,1,1,1,1,1,1,1,0]
 option_names := [ "NEGATIVE ATTITUDE", "VERBAL ABUSE", "LEAVING THE GAME / AFK", "DISRUPTIVE GAMEPLAY", "HATE SPEECH", "RANK MANIPULATION", "CHEATING", "OFFENSIVE OR INAPPROPRIATE NAME", "typed response: Give additional context..."]
 my_text := "Report Options:"
 Gui, Add, Text, xm yp+40 vTextReportOptions, %my_text%
@@ -58,8 +60,8 @@ Loop % selected_options.Length()
     iter += 1
 }
 
-meta_selected_options := [0, 0, 0, 0]
-meta_option_names := ["Get Cursor Coords only", "Auto Submit", "x10 (including yourself ) and auto-submit", "Mock submit (clicks X instead)"]
+meta_selected_options := [0, 0, 0, 0, 1]
+meta_option_names := ["Get Cursor Coords only", "Auto Submit", "x10 (including yourself :) hehexd ) & auto-submit", "Mock submit (clicks X instead)", "Msg chat (cancels report msg)"]
 GuiControlGet, TextReportOptions, Pos
 x := TextReportOptionsX + floor(win_width / 2)
 y := TextReportOptionsY
@@ -82,11 +84,11 @@ GuiControlGet, checkbox_9, Pos
 x := checkbox_9X
 y := checkbox_9Y + 30
 
-my_text := "Additional typed report:"
+my_text := "Additional typed report | chat msg:"
 Gui, Add, Text, x%x% y%y%, %my_text%
 w := win_width - 180
 Gui, Font, c000000,
-Gui, Add, Edit, xp yp+30 w%w% r1 vEditBox 
+Gui, Add, Edit, xp yp+30 w%w% r1 vEditBox, %DefaultReportMsg%
 
 Gui, Font, cFFFFFF,
 
@@ -137,16 +139,20 @@ report_x1(selected_options, meta_selected_options)
         ; Typed response option
         if ( A_Index = 9 )
         {
-            GuiControlGet, EditBox
-            typed_msg := EditBox
-            Send % typed_msg
+            ; do not report msg if msg chat selected
+            if ( meta_selected_options[5] != 1 )
+            {
+                GuiControlGet, EditBox
+                typed_msg := EditBox
+                Send % typed_msg
+            }
         }
     }
     ; auto submit / x10 option
     if ( meta_selected_options[2] = 1 || meta_selected_options[3] = 1)
     {
         Sleep, 250 ; allow time for clicks
-        if( selected_options[8] = 1 && typed_msg != "" )
+        if( selected_options[9] = 1 && typed_msg != "" )
         {
             Sleep, 750 ; allow more time for typed msg
         }
@@ -199,6 +205,33 @@ report_x10(selected_options, meta_selected_options)
         Sleep, 250 ; Allow time for the popup to render before clicks occur
         report_x1(selected_options, meta_selected_options)
     }
+    return
+}
+
+msg_chat(meta_selected_options)
+{
+    CoordMode, Mouse, Screen
+    IfWinNotExist, League of Legends
+    {
+        MsgBox, LoL not running
+        return
+    }
+    WinGet, hwnd, ID, League of Legends
+    WinGetPos, win_x, win_y, win_width, win_height, ahk_id %hwnd%
+    chat_input_x := win_x + floor( 80 * win_width / 1280 )
+    chat_input_y := win_y + floor( 675 * win_height / 720 )
+    MouseMove, %chat_input_x%, %chat_input_y%
+    Click
+    Sleep, 100 ; Allow time to load after clicking into chat input 
+    GuiControlGet, EditBox
+    typed_msg := EditBox
+    if ( typed_msg = "" )
+    {
+        return
+    }
+    Send % typed_msg
+    Sleep, 750 ; Allow time for msg to be 'typed'
+    Send {Enter}
     return
 }
 ; ==============================================================================================
@@ -276,6 +309,11 @@ FuncHotkeyAction:
     {
         report_x1(selected_options, meta_selected_options)
     }
+    ; chat msg
+    if ( meta_selected_options[5] = 1 )
+    {
+        msg_chat(meta_selected_options)
+    }
     return
 
 FuncCheckbox:
@@ -293,4 +331,5 @@ FuncCheckbox:
     meta_selected_options[2] := meta_checkbox_2
     meta_selected_options[3] := meta_checkbox_3
     meta_selected_options[4] := meta_checkbox_4
+    meta_selected_options[5] := meta_checkbox_5
     return
