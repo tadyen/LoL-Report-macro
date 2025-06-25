@@ -4,6 +4,10 @@
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
+; ==============================================================================================
+; === FrontEnd
+; ==============================================================================================
+
 MyHotkey_plain := "F12"
 MyHotkey := "~" MyHotkey_plain
 Hotkey, % MyHotkey, FuncHotkeyAction
@@ -40,8 +44,8 @@ Gui, Add, Button, xp+80 yp h30 vHotkeyCancelButton gFuncHotkeyCancelButton, %but
 GuiControl, Hide, HotkeyApplyButton
 GuiControl, Hide, HotkeyCancelButton
 
-selected_options := [1,1,1,1,1,1,1,1]
-option_names := [ "NEGATIVE ATTITUDE", "VERBAL ABUSE", "LEAVING THE GAME / AFK", "INTENTIONAL FEEDING", "HATE SPEECH", "CHEATING", "OFFENSIVE OR INAPPROPRIATE NAME", "typed response: Give additional context..."]
+selected_options := [1,1,1,1,1,1,1,1,1]
+option_names := [ "NEGATIVE ATTITUDE", "VERBAL ABUSE", "LEAVING THE GAME / AFK", "DISRUPTIVE GAMEPLAY", "HATE SPEECH", "RANK MANIPULATION", "CHEATING", "OFFENSIVE OR INAPPROPRIATE NAME", "typed response: Give additional context..."]
 my_text := "Report Options:"
 Gui, Add, Text, xm yp+40 vTextReportOptions, %my_text%
 iter := 1
@@ -55,7 +59,7 @@ Loop % selected_options.Length()
 }
 
 meta_selected_options := [0, 0, 0, 0]
-meta_option_names := ["Get Cursor Coords only", "Auto Submit", "x10 (including yourself :) This will auto-submit)", "Mock submit (click X instead)"]
+meta_option_names := ["Get Cursor Coords only", "Auto Submit", "x10 (including yourself ) and auto-submit", "Mock submit (clicks X instead)"]
 GuiControlGet, TextReportOptions, Pos
 x := TextReportOptionsX + floor(win_width / 2)
 y := TextReportOptionsY
@@ -73,14 +77,14 @@ Loop % meta_selected_options.Length()
     iter += 1
 }
 
-
-GuiControlGet, checkbox_8, Pos
-x := checkbox_8X
-y := checkbox_8Y + 30
+; typed response textbox
+GuiControlGet, checkbox_9, Pos
+x := checkbox_9X
+y := checkbox_9Y + 30
 
 my_text := "Additional typed report:"
 Gui, Add, Text, x%x% y%y%, %my_text%
-w := win_width - 60
+w := win_width - 180
 Gui, Font, c000000,
 Gui, Add, Edit, xp yp+30 w%w% r1 vEditBox 
 
@@ -105,13 +109,14 @@ report_x1(selected_options, meta_selected_options)
     }
     WinGet, hwnd, ID, League of Legends
     WinGetPos, win_x, win_y, win_width, win_height, ahk_id %hwnd%
+    ; rel coords for 1280x720 interface
     first_checkbox_x := win_x + floor( 440 * win_width / 1280 )
     first_checkbox_y := win_y + floor( 223 * win_height / 720 )
     report_submit_button_x := win_x + floor( 640 * win_width / 1280 )
     report_submit_button_y := win_y + floor( 630 * win_height / 720 )
     report_cancel_x := win_x + floor( 870 * win_width / 1280 )
     report_cancel_y := win_y + floor( 75 * win_height / 720 )
-    checkbox_ycoords := [565, 609, 669, 714, 758, 804, 847, 897] ; collected from my screen at window height of 720px
+    checkbox_ycoords := [408, 452, 512, 559, 602, 648, 691, 736, 788] ; abs-y coords at each report checkbox + textbox at 720px interface
     click_xpos := first_checkbox_x
     click_ypos := first_checkbox_y
     Loop % checkbox_ycoords.Length()
@@ -129,14 +134,15 @@ report_x1(selected_options, meta_selected_options)
         {
             Click, %click_xpos%, %click_ypos%
         }
-        if ( A_Index = 8 )
+        ; Typed response option
+        if ( A_Index = 9 )
         {
             GuiControlGet, EditBox
             typed_msg := EditBox
             Send % typed_msg
         }
     }
-    ; auto submit / x10 optoin
+    ; auto submit / x10 option
     if ( meta_selected_options[2] = 1 || meta_selected_options[3] = 1)
     {
         Sleep, 250 ; allow time for clicks
@@ -282,6 +288,7 @@ FuncCheckbox:
     selected_options[6] := checkbox_6
     selected_options[7] := checkbox_7
     selected_options[8] := checkbox_8
+    selected_options[9] := checkbox_9
     meta_selected_options[1] := meta_checkbox_1
     meta_selected_options[2] := meta_checkbox_2
     meta_selected_options[3] := meta_checkbox_3
